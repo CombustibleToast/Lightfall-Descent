@@ -1,3 +1,13 @@
-[gd_scene format=3 uid="uid://cymx2p74j54ys"]
+[gd_scene load_steps=2 format=3 uid="uid://cymx2p74j54ys"]
+
+[ext_resource type="PackedScene" uid="uid://pb5nk8aihcnu" path="res://Player/Player.tscn" id="1_82wou"]
 
 [node name="Node3D" type="Node3D"]
+
+[node name="Player" parent="." instance=ExtResource("1_82wou")]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 6.246, 3.607)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.619257, 0.785188, 0, -0.785188, 0.619257, 0, 7.533, 6.27801)
