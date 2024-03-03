@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://cr4qvinksg2qa"]
+
+[ext_resource type="Script" path="res://Rocket/Rocket.gd" id="1_mfosk"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_24ea4"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_60v5y"]
+radius = 0.219004
+
+[node name="Rocket" type="RigidBody3D"]
+mass = 200.0
+gravity_scale = 0.0
+script = ExtResource("1_mfosk")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.42, 0, 0, 0, 1, 0, 0, 0, 0.42, 0, 0, 0)
+mesh = SubResource("CylinderMesh_24ea4")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CylinderShape3D_60v5y")
