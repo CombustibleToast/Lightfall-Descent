@@ -20,7 +20,7 @@ enum RocketState {FLOATING, MOUNTED, FIRED, EXPLODING, DISABLED}
 const DRAG_DELTA_MULTIPLIER = 50
 
 @export_group("Fired Movement")
-@export var fired_impulse = 100
+@export var fired_impulse = 10000
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -70,7 +70,7 @@ func correct_position(delta):
 
 func fired_movement(delta):
 	print("%s is fired, vel = %s"%[name, linear_velocity])
-	apply_central_impulse(basis.y * fired_impulse * delta)
+	apply_central_impulse(-basis.y * fired_impulse * delta)
 
 func player_mount(status):
 	if(status):
@@ -95,6 +95,6 @@ func mounted_input_movement(input_vector, delta):
 # This function is called by the player after arming and releasing the rocket to be fired
 func fire():
 	state = RocketState.FIRED
-	
+
 	# look at crosshair before firing, not yet implemented
 	lock_rotation = true
