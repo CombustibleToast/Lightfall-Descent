@@ -28,6 +28,9 @@ const DRAG_DELTA_MULTIPLIER = 50
 
 # Enemy Variables
 @onready var hit_enemy:Enemy = null
+@export var fuse_time = 2
+@onready var remaining_fuse_time = fuse_time
+@export var damage = 1
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -36,7 +39,12 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	pass
+	match state:
+		RocketState.STUCK_IN_TARGET:
+			fuse_countdown(delta)
+		_:
+			pass
+
 
 func _physics_process(delta):
 	match state:
@@ -118,18 +126,50 @@ func fire():
 
 ## Enemy Collision
 
+func _on_enemy_collision_area_area_entered(area:Area3D):
+	var other = area.get_parent()
+	print("%s has areaEntered with %s"%[name, other.name])
+	if other.is_in_group("enemies"):
+		enemy_hit(other)
+
 func enemy_hit(enemy:Enemy):
+	# Wait one frame before applying effects. This is to let the rocket dig in a little and impart its momentum to the target
+	# Doesn't work, just going to have the enemy be pushed back by the rocket in code. L
+	# await get_tree().process_frame
+	# await get_tree().process_frame
+
+	# Inform the enemy that it's been hit
+	enemy.hit_by_rocket(self)
+	
 	# Disable enemy collider to prevent infinite recalls
 	$"Enemy Collision Area/CollisionShape3D".disabled = true
+
+	# Disable physics collider to avoid jank
+	$"CollisionShape3D".disabled = true
 
 	# Update state
 	state = RocketState.STUCK_IN_TARGET
 	hit_enemy = enemy
 
 	# Inherit enemy's transform
+	var old_global_transform = global_transform
 	self.get_parent().remove_child(self)
 	enemy.add_child(self)
+	global_transform = old_global_transform
 
-# Called during phys_process. Become enemy's transform child
+func fuse_countdown(delta):
+	remaining_fuse_time -= delta
+	if remaining_fuse_time <= 0:
+		# Explode once the fuse is out
+		# Deal damage to enemy
+		hit_enemy.take_damage(damage)
+
+		# Play particle effect or whatever here
+
+		# Delete self
+		self.queue_free()
+
+# Called during phys_process. The enemy's transform is already inherited, so just don't move at all WRT the enemy
 func stick_in_enemy():
-	pass
+	# linear_velocity = Vector3.ZERO
+	freeze = true

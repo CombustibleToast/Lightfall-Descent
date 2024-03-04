@@ -54,3 +54,5 @@ collision_mask = 0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Interaction Area"]
 shape = SubResource("CapsuleShape3D_jsjyn")
+
+[connection signal="area_entered" from="Enemy Collision Area" to="." method="_on_enemy_collision_area_area_entered"]
