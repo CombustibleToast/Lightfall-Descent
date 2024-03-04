@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://cr4qvinksg2qa"]
+[gd_scene load_steps=9 format=3 uid="uid://cr4qvinksg2qa"]
 
 [ext_resource type="Script" path="res://Rocket/Rocket.gd" id="1_mfosk"]
 
@@ -22,6 +22,10 @@ material = SubResource("StandardMaterial3D_rpw67")
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_60v5y"]
 radius = 0.219004
 
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hp00f"]
+radius = 0.259282
+height = 2.50737
+
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_jsjyn"]
 radius = 1.10689
 height = 4.8145
@@ -29,6 +33,7 @@ height = 4.8145
 [node name="Rocket" type="RigidBody3D" groups=["rockets"]]
 mass = 200.0
 gravity_scale = 0.0
+contact_monitor = true
 script = ExtResource("1_mfosk")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
@@ -37,6 +42,11 @@ mesh = SubResource("CylinderMesh_24ea4")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("CylinderShape3D_60v5y")
+
+[node name="Enemy Collision Area" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Enemy Collision Area"]
+shape = SubResource("CapsuleShape3D_hp00f")
 
 [node name="Interaction Area" type="Area3D" parent="."]
 collision_layer = 2

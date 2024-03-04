@@ -1,26 +1,33 @@
 extends RigidBody3D
 
-const DESCENT_VECTOR = Vector3(0,-2,1)
-@onready var look_direction = DESCENT_VECTOR
-# const ROTATION_CORRECTION_POWER = 100000
-@onready var desired_position = Vector3(0,0,0) #change this to be per-missile. Also is updated to current pos while the player is controlling it
-const POSITION_CORRECTION_POWER = 10000
-const MAX_FLOATING_VELOCITY = 10
+class_name Rocket
+
+@onready var parent = $".."
 
 # State Machine
-enum RocketState {FLOATING, MOUNTED, FIRED, EXPLODING, DISABLED}
+enum RocketState {FLOATING, MOUNTED, FIRED, STUCK_IN_TARGET, EXPLODING, DISABLED}
 @onready var PLAYER = null
 @onready var state = RocketState.FLOATING
 
 # Movement Variables
+# Floating
+const DESCENT_VECTOR = Vector3(0,-2,1)
+@onready var look_direction = DESCENT_VECTOR
+@onready var desired_position = Vector3(0,0,0) #change this to be per-missile. Also is updated to current pos while the player is controlling it
+const POSITION_CORRECTION_POWER = 10000
+const MAX_FLOATING_VELOCITY = 10
+# Mounted
 @export_group("Mounted Movement")
 @export var mounted_movement_force = 10000
 @export var mounted_movement_drag = 0.01
 @export var auto_course_stabilization_threshold = 1
 const DRAG_DELTA_MULTIPLIER = 50
-
+# Fired
 @export_group("Fired Movement")
 @export var fired_impulse = 10000
+
+# Enemy Variables
+@onready var hit_enemy:Enemy = null
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -32,11 +39,15 @@ func _process(delta):
 	pass
 
 func _physics_process(delta):
-	if(state == RocketState.FIRED):
-		fired_movement(delta)
-	else:
-		correct_rotation(delta)
-		correct_position(delta)
+	match state:
+		RocketState.FIRED: 
+			fired_movement(delta)
+		RocketState.STUCK_IN_TARGET: 
+			stick_in_enemy()
+		_:
+			correct_rotation(delta)
+			correct_position(delta)
+		
 
 func correct_rotation(delta):
 	# https://forum.godotengine.org/t/how-to-find-a-torque-to-rotate-an-object-towards-a-desired-rotation/13914/2
@@ -68,11 +79,13 @@ func correct_position(delta):
 	if linear_velocity.length() > MAX_FLOATING_VELOCITY:
 		linear_velocity = linear_velocity.normalized() * MAX_FLOATING_VELOCITY
 
+## Player Interaction
+
 func fired_movement(delta):
-	print("%s is fired, vel = %s"%[name, linear_velocity])
+	# print("%s is fired, vel = %s"%[name, linear_velocity])
 	apply_central_impulse(-basis.y * fired_impulse * delta)
 
-func player_mount(status):
+func player_mount(status:bool):
 	if(status):
 		state = RocketState.MOUNTED
 	else:
@@ -94,7 +107,29 @@ func mounted_input_movement(input_vector, delta):
 
 # This function is called by the player after arming and releasing the rocket to be fired
 func fire():
+	# Update state
 	state = RocketState.FIRED
+
+	# Disable Interaction Collider
+	$"Interaction Area/CollisionShape3D".disabled = true
 
 	# look at crosshair before firing, not yet implemented
 	lock_rotation = true
+
+## Enemy Collision
+
+func enemy_hit(enemy:Enemy):
+	# Disable enemy collider to prevent infinite recalls
+	$"Enemy Collision Area/CollisionShape3D".disabled = true
+
+	# Update state
+	state = RocketState.STUCK_IN_TARGET
+	hit_enemy = enemy
+
+	# Inherit enemy's transform
+	self.get_parent().remove_child(self)
+	enemy.add_child(self)
+
+# Called during phys_process. Become enemy's transform child
+func stick_in_enemy():
+	pass
