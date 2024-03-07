@@ -11,7 +11,7 @@ enum RocketState {FLOATING, MOUNTED, FIRED, STUCK_IN_TARGET, EXPLODING, DISABLED
 
 # Movement Variables
 # Floating
-const DESCENT_VECTOR = Vector3(0,-2,1)
+const DESCENT_VECTOR = Vector3(0,0,-1) * 2
 @onready var look_direction = DESCENT_VECTOR
 @onready var desired_position = Vector3(0,0,0) #change this to be per-missile. Also is updated to current pos while the player is controlling it
 const POSITION_CORRECTION_POWER = 10000
@@ -68,7 +68,7 @@ func correct_rotation(delta):
 	# Non-physics easy mode
 	# Change rotation to slightly point in direction of movement
 	# Create 2d shadow of velocity vector excluding forward and backward movement
-	var direction_delta = Vector3(-linear_velocity.x, -linear_velocity.y - linear_velocity.z/2, 0) * 0.1
+	var direction_delta = Vector3(linear_velocity.x, linear_velocity.y + linear_velocity.z/2, 0) * 0.1
 
 	# Change look direction by the delta
 	look_direction = DESCENT_VECTOR + direction_delta
@@ -91,13 +91,16 @@ func correct_position(delta):
 
 func fired_movement(delta):
 	# print("%s is fired, vel = %s"%[name, linear_velocity])
-	apply_central_impulse(-basis.y * fired_impulse * delta)
+	apply_central_impulse(-basis.z * fired_impulse * delta)
 
 func player_mount(status:bool):
 	if(status):
 		state = RocketState.MOUNTED
 	else:
 		state = RocketState.FLOATING
+	
+	# Push the rocket down with a single impulse
+	# apply_impulse(Vector3(0,0,1000), PLAYER.position)
 
 # This function is called by the player script while the player is mounted to a rocket
 # This function is called in a phys_process and input_vector is normalized

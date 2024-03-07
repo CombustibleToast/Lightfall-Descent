@@ -1,0 +1,9 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://bqlu7hctqjp2h"]
+
+[resource]
+resource_name = "bodyv2"
+shading_mode = 2
+diffuse_mode = 3
+specular_mode = 1
+albedo_color = Color(0.886275, 0.392157, 0.788235, 1)
+roughness = 0.05

@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://ctesqc112sjm5"]
+
+[resource]
+resource_name = "gear"
+cull_mode = 2
+shading_mode = 2
+diffuse_mode = 3
+specular_mode = 1
+albedo_color = Color(0.647059, 0.807843, 0, 1)
+metallic_specular = 0.2
+roughness = 0.65

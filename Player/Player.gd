@@ -5,12 +5,22 @@ const DRAG = 0.1
 const DRAG_DELTA_MULTIPLIER = 50
 const INERTIA = 80.0
 
+# Rocket interactions
 @onready var all_interactables = []
 @onready var currently_mounted_rocket = null
+@onready var jump_push_impulse = 6000.0
+@onready var collider = $"CollisionShape3D"
 
-# Rocket arming and firing
-enum ArmingState {NOT_ARMING, ARMING, ARMING_CANCELLED_BUT_BUTTON_STILL_HELD}
-@onready var arming_state = ArmingState.NOT_ARMING
+# Character state machine
+enum State {FALLING, RIDING, ARMING, ARMING_CANCELLED_BUT_BUTTON_STILL_HELD, FIRING}
+@onready var state = State.FALLING
+
+# Visual Stuff
+@onready var animator = $"../AnimationTree"
+@onready var camera = $"../../Camera3D"
+@onready var initial_camera_offset:Vector3 = camera.position - self.position
+@onready var rig:Node3D = $"../LFD rig"
+# @onready var mesh = $
 
 func _process(delta):
 	# Check for interaction press
@@ -20,22 +30,48 @@ func _process(delta):
 	# Process arming cylce
 	process_arming()
 
+	# Update animator
+	update_animator()
+	print(state)
+	
+	# Update camera
+	update_camera()
+
+
 func _physics_process(delta):
-	if currently_mounted_rocket:
-		mounted_movement(delta)
-	else:
-		freefall_movement(delta)
+	# Collect inputs
+	var inputs:Vector3 = collect_movement_inputs()
+
+	# Process movement
+	match state:
+		State.FALLING:
+			freefall_movement(inputs, delta)
+		State.RIDING:
+			mounted_movement(inputs, delta)
+		State.ARMING:
+			mounted_movement(inputs, delta)
+		State.ARMING_CANCELLED_BUT_BUTTON_STILL_HELD:
+			mounted_movement(inputs, delta)
+		State.FIRING:
+			# Disallow movement
+			pass
+
+	# Update rig
+	rig.position = global_position
+	rig.rotation = global_rotation
+	rig.scale = scale
+
 
 ## Movement
 
-func freefall_movement(delta):
-	# Get the input direction and handle the movement/deceleration.
-	# As good practice, you should replace UI actions with custom gameplay actions.
+func collect_movement_inputs() -> Vector3:
+	# Some of the axes are funky because of the way the camera and scene are oriented 
 	var input_vector = Input.get_vector("left", "right", "forward", "backward")
 	var elevation_vector = Input.get_axis("down", "up")
-	var input_direction = (transform.basis * Vector3(input_vector.x, elevation_vector, input_vector.y)).normalized()
+	return (transform.basis * Vector3(input_vector.x, elevation_vector, input_vector.y)).normalized()
 
-	velocity += input_direction * SPEED * delta
+func freefall_movement(input_vector:Vector3,delta):
+	velocity += input_vector * SPEED * delta
 
 	var delta_drag = 1 - (DRAG * delta * DRAG_DELTA_MULTIPLIER) # No idea if this is the right way to influence drag with delta.
 	velocity *= delta_drag
@@ -51,17 +87,20 @@ func freefall_movement(delta):
 			# c.get_collider().apply_central_impulse(-c.get_normal() * INERTIA)
 			c.get_collider().apply_impulse(-c.get_normal() * INERTIA)
 
-func mounted_movement(delta):
-	# Inherit transform
-	position = currently_mounted_rocket.position + Vector3(0,1,0)
-
-	# Collect input
-	var input_vector = Input.get_vector("left", "right", "forward", "backward")
-	var elevation_vector = Input.get_axis("down", "up")
-	var input_direction = (transform.basis * Vector3(input_vector.x, elevation_vector, input_vector.y)).normalized()
-
+func mounted_movement(input_vector:Vector3, delta):
 	# Pass input to rocket for movement
-	currently_mounted_rocket.mounted_input_movement(input_direction, delta)
+	currently_mounted_rocket.mounted_input_movement(input_vector, delta)
+
+func inherit_global_transform():
+	# Inherit global transform
+	var old_global_transform = global_transform
+	var root_node = get_tree().root
+	self.get_parent().remove_child(self)
+	root_node.add_child(self)
+	global_transform = old_global_transform
+
+	# Reset rotation
+	rotation = Vector3.ZERO
 
 ## Rocket Firing
 
@@ -76,27 +115,30 @@ func process_arming():
 	# Don't try to start arming again until the arm button is re-pressed
 
 	# Check for arming button held but don't care if it's from a cancelled arming cycle
-	if Input.is_action_pressed("arm_rocket") && arming_state != ArmingState.ARMING_CANCELLED_BUT_BUTTON_STILL_HELD:
+	if Input.is_action_pressed("arm_rocket") && state != State.ARMING_CANCELLED_BUT_BUTTON_STILL_HELD:
 		# Arm the rocket if not already
-		arming_state = ArmingState.ARMING
+		state = State.ARMING
 		
 
 	# Check for disarm button press. Only care if the rocket's being armed
-	if arming_state == ArmingState.ARMING && Input.is_action_just_pressed("disarm_rocket"):
+	if state == State.ARMING && Input.is_action_just_pressed("disarm_rocket"):
 		# Disarm the rocket
-		arming_state = ArmingState.ARMING_CANCELLED_BUT_BUTTON_STILL_HELD
+		state = State.ARMING_CANCELLED_BUT_BUTTON_STILL_HELD
 
 	# Reset arming state if the button was released after disarming
-	if arming_state == ArmingState.ARMING_CANCELLED_BUT_BUTTON_STILL_HELD && Input.is_action_just_released("arm_rocket"):
-		arming_state = ArmingState.NOT_ARMING
+	if state == State.ARMING_CANCELLED_BUT_BUTTON_STILL_HELD && Input.is_action_just_released("arm_rocket"):
+		state = State.RIDING
 
 	# If the rocket is properly armed and the button is released, fire it
-	if arming_state == ArmingState.ARMING && Input.is_action_just_released("arm_rocket"):
+	if state == State.ARMING && Input.is_action_just_released("arm_rocket"):
 		fire_rocket()
 
 func fire_rocket():
-	currently_mounted_rocket.fire()
-	currently_mounted_rocket = null
+	# Play animation
+	state = State.FIRING
+
+	# Releasing the rocket is handled in animation_jump_release
+	# Resetting the state is hangled in animation_jump_finished
 
 ## Interactions
 
@@ -120,16 +162,33 @@ func mount_rocket(rocket):
 	currently_mounted_rocket = rocket
 
 	# Play mount animation
+	state = State.RIDING
 
-	# Position inheritence is handled in mounted_movement()
+	# Inherit rocket transform
+	position = rocket.position + Vector3.UP * 0.3
+	var old_global_transform = global_transform
+	self.get_parent().remove_child(self)
+	rocket.add_child(self)
+	global_transform = old_global_transform
 
 	# Inform rocket of mounted status
 	rocket.player_mount(true)
+
+	# Disable own collider
+	collider.disabled = true
 
 func dismount_rocket():
 	# This function should only be called while mounted, will crash otherwise
 	currently_mounted_rocket.player_mount(false)
 	currently_mounted_rocket = null
+
+	inherit_global_transform()
+	
+	# Update state
+	state = State.FALLING
+
+	# Re-enable own collider
+	collider.disabled = true
 
 func _on_player_interaction_area_area_entered(area):
 	print("%s has entered player's interact area"%area.get_parent().name)
@@ -139,3 +198,36 @@ func _on_player_interaction_area_area_entered(area):
 func _on_player_interaction_area_area_exited(area):
 	all_interactables.erase(area.get_parent())
 	pass # Replace with function body.
+
+## Visuals
+
+func update_animator():	
+	animator.set("parameters/conditions/mount", state == State.RIDING || state == State.ARMING_CANCELLED_BUT_BUTTON_STILL_HELD)
+	animator.set("parameters/conditions/dismount", state == State.FALLING)
+	animator.set("parameters/conditions/arm", state == State.ARMING)
+	animator.set("parameters/conditions/disarm", state == State.RIDING)
+	animator.set("parameters/conditions/fire", state == State.FIRING)
+
+# This function is called within the AnimationPlayer -> jump animation. Scroll to the bottom of all the tracks to see it
+func animation_jump_release():
+	# Fire the rocket
+	currently_mounted_rocket.fire()
+
+	# Push the rocket down and the player up
+	currently_mounted_rocket.apply_central_impulse(Vector3(0, -jump_push_impulse, 0))
+
+	# Dismount the rocket
+	currently_mounted_rocket = null
+	inherit_global_transform()
+
+	# Re-enable own collider
+	collider.disabled = true
+
+# This function is called within the AnimationPlayer -> jump animation. Scroll to the bottom of all the tracks to see it
+func animation_jump_finished():
+	# Jump animation is done, reset to falling state
+	state = State.FALLING
+
+func update_camera():
+	# Force camera to track this node
+	camera.position = self.global_position + initial_camera_offset

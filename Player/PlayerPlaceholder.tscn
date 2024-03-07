@@ -1,0 +1,44 @@
+[gd_scene load_steps=8 format=3 uid="uid://pb5nk8aihcnu"]
+
+[ext_resource type="Script" path="res://Player/PlayerMesh.gd" id="1_0ks5d"]
+[ext_resource type="Script" path="res://Player/Player.gd" id="1_eng4w"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_tw12q"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7gq5q"]
+albedo_color = Color(1, 0.666667, 0, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_tpw84"]
+material = SubResource("StandardMaterial3D_7gq5q")
+
+[sub_resource type="PrismMesh" id="PrismMesh_fqxnu"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_b354x"]
+radius = 0.900949
+height = 3.35334
+
+[node name="CharacterBody3D" type="CharacterBody3D" groups=["player"]]
+transform = Transform3D(0.316, 0, 0, 0, 0.316, 0, 0, 0, 0.316, 0, 0, 0)
+motion_mode = 1
+script = ExtResource("1_eng4w")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_tw12q")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_tpw84")
+script = ExtResource("1_0ks5d")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.462, 0, 0, 0, 0.369462, 0.277384, 0, -0.277384, 0.369462, 0.0126582, 1.03481, -0.414557)
+mesh = SubResource("PrismMesh_fqxnu")
+
+[node name="Player Interaction Area" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="Interaction Shape" type="CollisionShape3D" parent="Player Interaction Area"]
+shape = SubResource("CapsuleShape3D_b354x")
+
+[connection signal="area_entered" from="Player Interaction Area" to="." method="_on_player_interaction_area_area_entered"]
+[connection signal="area_exited" from="Player Interaction Area" to="." method="_on_player_interaction_area_area_exited"]
