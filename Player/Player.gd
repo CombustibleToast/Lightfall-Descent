@@ -2,6 +2,7 @@ extends CharacterBody3D
 class_name Player
 
 const SPEED = 200.0 # change to about 5 once movement abilities are in
+@export var arming_movement_speed_throttle:float = 0.05
 const DRAG = 0.1
 const DRAG_DELTA_MULTIPLIER = 50
 const INERTIA = 80.0
@@ -9,6 +10,7 @@ const INERTIA = 80.0
 # Rocket interactions
 @onready var all_interactables = []
 @onready var currently_mounted_rocket:Rocket = null
+@export var riding_position_offset:Vector3 = Vector3(0,0.1,0)
 @onready var jump_push_impulse = 6000.0
 @onready var collider = $"CollisionShape3D"
 @export var targeting_raycast:RayCast3D # set in inspector of game scene
@@ -83,6 +85,8 @@ func freefall_movement(input_vector:Vector3,delta):
 			c.get_collider().apply_impulse(-c.get_normal() * INERTIA)
 
 func mounted_movement(input_vector:Vector3, delta):
+	# Scale movment down if arming
+	input_vector *= arming_movement_speed_throttle if state == State.ARMING else 1.0
 	# Pass input to rocket for movement
 	currently_mounted_rocket.mounted_input_movement(input_vector, delta)
 
@@ -196,7 +200,7 @@ func mount_rocket(rocket):
 	state = State.RIDING
 
 	# Inherit rocket transform
-	position = rocket.position + Vector3.UP * 0.3
+	position = rocket.position + riding_position_offset
 	var old_global_transform = global_transform
 	self.get_parent().remove_child(self)
 	rocket.add_child(self)
