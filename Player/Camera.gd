@@ -22,12 +22,17 @@ enum State {NORMAL, TARGETING}
 # Lerp Timer
 @onready var time_since_last_state_change:float
 
+# Mouse movement accumulator
+@onready var mouse_movement:Vector2 = Vector2.ZERO
+@export var mouse_sensitivity:float = 1
+@export var max_mouse_x:float = 1000
+@export var max_mouse_y:float = 900
+
 @onready var debug_point_cube:Node3D = $MeshInstance3D
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass
-
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -76,6 +81,7 @@ func update_rotation():
 			look_at(player.global_position + targeting_look_position_offset)
 		_:
 			look_at(player.global_position + normal_look_position_offset)
+		
 
 func update_fov():
 	if state_just_changed:
@@ -88,3 +94,15 @@ func update_fov():
 			fov = lerp(previous_fov, targeting_fov, lerp_t)
 		_:
 			fov = lerp(previous_fov, initial_fov, lerp_t)
+
+# Capture mouse movement
+func _input(event):
+	if not event is InputEventMouseMotion:
+		return
+	
+	# https://docs.godotengine.org/en/stable/classes/class_inputeventmousemotion.html
+	# Accumulate movement
+	mouse_movement += (event.relative * mouse_sensitivity)
+
+	# Clamp accumulation
+	mouse_movement = clamp(mouse_movement, Vector2(-max_mouse_x, -max_mouse_y), Vector2(max_mouse_x, max_mouse_y))
