@@ -80,6 +80,7 @@ disarm_rocket={
 [layer_names]
 
 3d_physics/layer_2="Interaction"
+3d_physics/layer_3="Raycast to Enemy"
 
 [physics]
 

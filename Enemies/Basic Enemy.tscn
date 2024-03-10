@@ -1,29 +1,19 @@
-[gd_scene load_steps=6 format=3 uid="uid://cc0opmhevv0je"]
+[gd_scene load_steps=7 format=3 uid="uid://cc0opmhevv0je"]
 
 [ext_resource type="Script" path="res://Enemies/Enemy.gd" id="1_qhbj6"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_diqh6"]
-albedo_color = Color(0.239216, 0.0470588, 0.32549, 1)
-roughness = 0.3
-rim_enabled = true
-rim = 0.28
-rim_tint = 0.0
-clearcoat_enabled = true
-clearcoat_roughness = 1.0
-anisotropy_enabled = true
-anisotropy = -0.7
-refraction_scale = 0.1
-grow = true
-grow_amount = -1.0
+[ext_resource type="PackedScene" uid="uid://dctf0dg73554y" path="res://Enemies/Exports/Blorb.glb" id="2_cb2c8"]
+[ext_resource type="Material" uid="uid://26h7k61gjxuf" path="res://Enemies/Basic Enemy Material.tres" id="2_f7hmt"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_smqbx"]
-material = SubResource("StandardMaterial3D_diqh6")
+material = ExtResource("2_f7hmt")
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_06ugr"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_qc8t1"]
 
 [node name="Basic Enemy" type="RigidBody3D" groups=["enemies"]]
+collision_layer = 5
+collision_mask = 5
 mass = 50.0
 gravity_scale = 0.0
 contact_monitor = true
@@ -31,7 +21,11 @@ script = ExtResource("1_qhbj6")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(50, 0, 0, 0, 50, 0, 0, 0, 50, 0, 0, 0)
+visible = false
 mesh = SubResource("SphereMesh_smqbx")
+
+[node name="Blorb" parent="." instance=ExtResource("2_cb2c8")]
+transform = Transform3D(23.7619, 0, 0, 0, 23.7619, 0, 0, 0, 23.7619, 0, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(50, 0, 0, 0, 50, 0, 0, 0, 50, 0, 0, 0)

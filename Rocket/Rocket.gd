@@ -5,7 +5,7 @@ class_name Rocket
 @onready var parent = $".."
 
 # State Machine
-enum RocketState {FLOATING, MOUNTED, FIRED, STUCK_IN_TARGET, EXPLODING, DISABLED}
+enum RocketState {FLOATING, MOUNTED, PRE_FIRE, FIRED, STUCK_IN_TARGET, EXPLODING, DISABLED}
 @onready var PLAYER = null
 @onready var state = RocketState.FLOATING
 
@@ -25,12 +25,14 @@ const DRAG_DELTA_MULTIPLIER = 50
 # Fired
 @export_group("Fired Movement")
 @export var fired_impulse = 10000
+@export var fired_acceleration = 25.0
 
 # Enemy Variables
 @onready var hit_enemy:Enemy = null
 @export var fuse_time = 2
 @onready var remaining_fuse_time = fuse_time
 @export var damage = 1
+var stored_targeting_reticle = null
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -52,6 +54,8 @@ func _physics_process(delta):
 			fired_movement(delta)
 		RocketState.STUCK_IN_TARGET: 
 			stick_in_enemy()
+		RocketState.PRE_FIRE:
+			pass
 		_:
 			correct_rotation(delta)
 			correct_position(delta)
@@ -90,8 +94,15 @@ func correct_position(delta):
 ## Player Interaction
 
 func fired_movement(delta):
-	# print("%s is fired, vel = %s"%[name, linear_velocity])
-	apply_central_impulse(-basis.z * fired_impulse * delta)
+	# Point at target
+	# TODO: make this a smooth/lerp'd function
+	look_at(stored_targeting_reticle.global_position)
+
+	# Move in direction of pointing
+	# Just setting the velocity to match rotation exactly. Don't want the player to have to deal with weird things like the rocket orbiting the target.
+	# That happens when just applying impulse
+	# apply_central_impulse(-basis.z * fired_impulse * delta)
+	linear_velocity = -basis.z * (linear_velocity.length() + fired_acceleration * delta)
 
 func player_mount(status:bool):
 	if(status):
@@ -115,6 +126,14 @@ func mounted_input_movement(input_vector, delta):
 	# Update desired position if necessary
 	if linear_velocity.length() > auto_course_stabilization_threshold:
 			desired_position = position
+
+# This function is called when the player begins to fire the rocket
+func pre_fire(targeting_reticle:TargetingReticle):
+	# Set state to prepare for firing
+	state = RocketState.PRE_FIRE
+
+	# Store targeting reticle to be deactivated upon detonation
+	stored_targeting_reticle = targeting_reticle
 
 # This function is called by the player after arming and releasing the rocket to be fired
 func fire():
@@ -144,11 +163,15 @@ func enemy_hit(enemy:Enemy):
 	# Inform the enemy that it's been hit
 	enemy.hit_by_rocket(self)
 	
-	# Disable enemy collider to prevent infinite recalls
+	# Disable own collider to prevent infinite recalls
 	$"Enemy Collision Area/CollisionShape3D".disabled = true
 
 	# Disable physics collider to avoid jank
 	$"CollisionShape3D".disabled = true
+
+	# Deactivate targeting reticle for reuse
+	stored_targeting_reticle.deactivate()
+	stored_targeting_reticle = null # just in case
 
 	# Update state
 	state = RocketState.STUCK_IN_TARGET

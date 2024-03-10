@@ -7,19 +7,20 @@ const INERTIA = 80.0
 
 # Rocket interactions
 @onready var all_interactables = []
-@onready var currently_mounted_rocket = null
+@onready var currently_mounted_rocket:Rocket = null
 @onready var jump_push_impulse = 6000.0
 @onready var collider = $"CollisionShape3D"
+@export var targeting_raycast:RayCast3D # set in inspector of game scene
+@export var targeting_reticle:TargetingReticle # set in inspector of game scene
 
 # Character state machine
 enum State {FALLING, RIDING, ARMING, ARMING_CANCELLED_BUT_BUTTON_STILL_HELD, FIRING}
 @onready var state = State.FALLING
 
 # Visual Stuff
-@onready var animator = $"../AnimationTree"
-@onready var camera = $"../../Camera3D"
+@onready var animator = $"AnimationTree"
+@onready var camera = $"../Camera3D"
 @onready var initial_camera_offset:Vector3 = camera.position - self.position
-@onready var rig:Node3D = $"../LFD rig"
 # @onready var mesh = $
 
 func _process(delta):
@@ -30,9 +31,12 @@ func _process(delta):
 	# Process arming cylce
 	process_arming()
 
+	# Process targeting
+	process_targeting()
+
 	# Update animator
 	update_animator()
-	print(state)
+	# print(state)
 	
 	# Update camera
 	update_camera()
@@ -55,12 +59,6 @@ func _physics_process(delta):
 		State.FIRING:
 			# Disallow movement
 			pass
-
-	# Update rig
-	rig.position = global_position
-	rig.rotation = global_rotation
-	rig.scale = scale
-
 
 ## Movement
 
@@ -133,9 +131,45 @@ func process_arming():
 	if state == State.ARMING && Input.is_action_just_released("arm_rocket"):
 		fire_rocket()
 
+func process_targeting():
+	# If the player is currently firing the rocket, don't do anything. That was handled in process_arming() -> fire_rocket()
+	if state == State.FIRING:
+		return
+	
+	# If the reticle is stuck in another target, also don't do anything
+	if targeting_reticle.stuck_on_target:
+		return
+	
+	# Only enable the targeting raycast if the player is targeting
+	if state != State.ARMING:
+		targeting_raycast.enabled = false
+		if targeting_reticle.visible:
+			targeting_reticle.deactivate()
+		return
+
+	# Enable the raycast and check for a hit
+	targeting_raycast.enabled = true
+	if targeting_raycast.is_colliding():
+		# print("raycast is hitting %s!"%other_collider.name)
+		# Raycast is hitting an enemy, gather spatial information about the contact
+		var collision_point:Vector3 = targeting_raycast.get_collision_point()
+		var collision_normal:Vector3 = targeting_raycast.get_collision_normal()
+
+		# Activate targeting reticle and move it to that point
+		targeting_reticle.activate(collision_point, collision_normal)
+	
+	else:
+		targeting_reticle.deactivate()	
+
 func fire_rocket():
 	# Play animation
 	state = State.FIRING
+
+	# Notify the rocket that it's about to be fired and give it the reticle for targeting purposes
+	currently_mounted_rocket.pre_fire(targeting_reticle)
+
+	# Notify the reticle that the rocket is being fired so it sticks to the target
+	targeting_reticle.rocket_firing(targeting_raycast.get_collider())
 
 	# Releasing the rocket is handled in animation_jump_release
 	# Resetting the state is hangled in animation_jump_finished

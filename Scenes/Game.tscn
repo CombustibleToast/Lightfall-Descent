@@ -1,18 +1,55 @@
-[gd_scene load_steps=5 format=3 uid="uid://cymx2p74j54ys"]
+[gd_scene load_steps=10 format=3 uid="uid://cymx2p74j54ys"]
 
 [ext_resource type="Script" path="res://Player/Camera.gd" id="1_3fs8u"]
 [ext_resource type="PackedScene" uid="uid://daj6g3rgkw7yd" path="res://Player/Character Model/Player Attempt 2.tscn" id="2_d6sd5"]
 [ext_resource type="Script" path="res://Scenes/ObjectManager.gd" id="2_d132w"]
 [ext_resource type="PackedScene" uid="uid://cc0opmhevv0je" path="res://Enemies/Basic Enemy.tscn" id="3_i7n1q"]
+[ext_resource type="PackedScene" uid="uid://cudqyxsfpwvqb" path="res://Rocket/Targeting Reticle.tscn" id="5_sobak"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_isaox"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_eav4t"]
+sky_top_color = Color(0.764706, 0.764706, 0.0862745, 1)
+sky_horizon_color = Color(0.290196, 0.129412, 0.294118, 1)
+sky_curve = 1.0815
+ground_bottom_color = Color(0.12549, 0.0431373, 0.129412, 1)
+ground_horizon_color = Color(0.290196, 0.129412, 0.294118, 1)
+ground_curve = 0.129961
+sun_curve = 0.0724451
+
+[sub_resource type="Sky" id="Sky_mktuf"]
+sky_material = SubResource("ProceduralSkyMaterial_eav4t")
+
+[sub_resource type="Environment" id="Environment_h78sx"]
+background_mode = 2
+sky = SubResource("Sky_mktuf")
+sky_custom_fov = 133.2
+sky_rotation = Vector3(1.03323, 0, 0)
+fog_light_color = Color(0.12549, 0.027451, 0.129412, 1)
+fog_density = 0.0183
 
 [node name="Node3D" type="Node3D"]
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.926635, 0.375963, 0, -0.375963, 0.926635, 7.10543e-15, 0.821751, 1.20642)
+current = true
 fov = 90.0
 script = ExtResource("1_3fs8u")
 
-[node name="Player" parent="." instance=ExtResource("2_d6sd5")]
+[node name="Targeting Raycast" type="RayCast3D" parent="Camera3D"]
+transform = Transform3D(1, 0, 0, 0, -2.98023e-08, -1, 0, 1, -2.98023e-08, 0, 0, 0)
+target_position = Vector3(0, -10000, 0)
+collision_mask = 4
+hit_from_inside = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Camera3D/Targeting Raycast"]
+transform = Transform3D(0.238, 0, 0, 0, 100, 7.45058e-09, 0, 0, 0.238, 0, -57.0989, 1.49012e-07)
+visible = false
+mesh = SubResource("BoxMesh_isaox")
+
+[node name="Player" parent="." node_paths=PackedStringArray("targeting_raycast", "targeting_reticle") instance=ExtResource("2_d6sd5")]
+targeting_raycast = NodePath("../Camera3D/Targeting Raycast")
+targeting_reticle = NodePath("../LFD Targeting Reticle")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.773657, 0.633605, 0, -0.633605, 0.773657, 0, 7.533, 6.27801)
@@ -22,3 +59,11 @@ script = ExtResource("2_d132w")
 
 [node name="Basic Enemy" parent="ObjectManager" instance=ExtResource("3_i7n1q")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -51.7121, -110.348)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_h78sx")
+
+[node name="LFD Targeting Reticle" parent="." node_paths=PackedStringArray("camera") instance=ExtResource("5_sobak")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
+visible = false
+camera = NodePath("../Camera3D")
