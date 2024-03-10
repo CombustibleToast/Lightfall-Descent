@@ -10,8 +10,9 @@ func _process(delta):
 	if visible:
 		pulse_and_rotate(delta)
 		
-
 func pulse_and_rotate(delta):
+	#TODO: Fix bug where the rotation is wonky once the object's transform is inherited
+	
 	# Accellerate if stuck in target
 	delta *= 5 if stuck_on_target else 1
 
