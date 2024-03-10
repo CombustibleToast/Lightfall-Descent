@@ -1,4 +1,5 @@
 extends CharacterBody3D
+class_name Player
 
 const SPEED = 200.0 # change to about 5 once movement abilities are in
 const DRAG = 0.1
@@ -18,7 +19,7 @@ enum State {FALLING, RIDING, ARMING, ARMING_CANCELLED_BUT_BUTTON_STILL_HELD, FIR
 @onready var state = State.FALLING
 
 # Visual Stuff
-@onready var animator = $"AnimationTree"
+@onready var animator:AnimationTree = $"AnimationTree"
 @onready var camera = $"../Camera3D"
 @onready var initial_camera_offset:Vector3 = camera.position - self.position
 # @onready var mesh = $
@@ -37,10 +38,6 @@ func _process(delta):
 	# Update animator
 	update_animator()
 	# print(state)
-	
-	# Update camera
-	update_camera()
-
 
 func _physics_process(delta):
 	# Collect inputs
@@ -236,10 +233,10 @@ func _on_player_interaction_area_area_exited(area):
 ## Visuals
 
 func update_animator():	
-	animator.set("parameters/conditions/mount", state == State.RIDING || state == State.ARMING_CANCELLED_BUT_BUTTON_STILL_HELD)
+	animator.set("parameters/conditions/mount", state == State.RIDING)
 	animator.set("parameters/conditions/dismount", state == State.FALLING)
 	animator.set("parameters/conditions/arm", state == State.ARMING)
-	animator.set("parameters/conditions/disarm", state == State.RIDING)
+	animator.set("parameters/conditions/disarm", state == State.RIDING || state == State.ARMING_CANCELLED_BUT_BUTTON_STILL_HELD)
 	animator.set("parameters/conditions/fire", state == State.FIRING)
 
 # This function is called within the AnimationPlayer -> jump animation. Scroll to the bottom of all the tracks to see it
@@ -261,7 +258,3 @@ func animation_jump_release():
 func animation_jump_finished():
 	# Jump animation is done, reset to falling state
 	state = State.FALLING
-
-func update_camera():
-	# Force camera to track this node
-	camera.position = self.global_position + initial_camera_offset

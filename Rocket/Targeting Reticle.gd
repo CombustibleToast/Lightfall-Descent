@@ -35,7 +35,6 @@ func activate(point:Vector3, normal:Vector3):
 # Called by Player.gd when lock is lost
 # Called by Rocket.gd when the rocket hits the target
 func deactivate():
-	print("reticle deactivated")
 	visible = false
 
 	# Inherit global transform if necessary
