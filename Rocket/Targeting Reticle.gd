@@ -3,6 +3,7 @@ class_name TargetingReticle
 
 @export var camera:Camera3D
 @onready var stuck_on_target:bool = false
+@onready var ms_elapsed:int = 0
 
 func _process(delta):
 	# Pulse and rotate if active.
@@ -11,6 +12,9 @@ func _process(delta):
 		
 
 func pulse_and_rotate(delta):
+	# Accellerate if stuck in target
+	delta *= 5 if stuck_on_target else 1
+
 	# Rotate
 	rotate_y(delta);
 
@@ -19,13 +23,16 @@ func pulse_and_rotate(delta):
 	var target_scale = Vector3.ONE * log(distance_to_camera) / 2
 
 	# Scale pulse
-	scale = target_scale * (sin(Time.get_ticks_msec()/500.0)/2 + 1)
+	ms_elapsed += delta*1000 # will overflow at some point, oh well
+	scale = target_scale * (sin(ms_elapsed/500.0)/2 + 1)
 
 # Called by Player.gd when the player has a lock on a target
 func activate(point:Vector3, normal:Vector3):
 	visible = true
 	look_at_from_position(point, point + normal)
 
+# Called by Player.gd when lock is lost
+# Called by Rocket.gd when the rocket hits the target
 func deactivate():
 	print("reticle deactivated")
 	visible = false
@@ -54,7 +61,3 @@ func rocket_firing(target_object:Node3D):
 
 	# Note down that reticle is stuck to target
 	stuck_on_target = true
-
-func free():
-	print("freed??")
-	super.free()
