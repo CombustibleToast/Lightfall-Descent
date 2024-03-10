@@ -132,8 +132,11 @@ func pre_fire(targeting_reticle:TargetingReticle):
 	# Set state to prepare for firing
 	state = RocketState.PRE_FIRE
 
-	# Store targeting reticle to be deactivated upon detonation
+	# Store targeting reticle to guide rocket during firing
 	stored_targeting_reticle = targeting_reticle
+
+	# Lock rotation so no jank physics stuff happens
+	lock_rotation = true
 
 # This function is called by the player after arming and releasing the rocket to be fired
 func fire():
@@ -143,8 +146,6 @@ func fire():
 	# Disable Interaction Collider
 	$"Interaction Area/CollisionShape3D".disabled = true
 
-	# look at crosshair before firing, not yet implemented
-	lock_rotation = true
 
 ## Enemy Collision
 
