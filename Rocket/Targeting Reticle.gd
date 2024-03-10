@@ -17,7 +17,7 @@ func pulse_and_rotate(delta):
 	delta *= 5 if stuck_on_target else 1
 
 	# Rotate
-	rotate_y(delta);
+	rotate_object_local(Vector3.FORWARD, delta)
 
 	# Scale to camera distance
 	var distance_to_camera = (global_position - camera.position).length_squared()
