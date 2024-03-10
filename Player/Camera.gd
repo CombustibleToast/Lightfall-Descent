@@ -24,14 +24,15 @@ enum State {NORMAL, TARGETING}
 
 # Mouse movement accumulator
 @onready var mouse_movement:Vector2 = Vector2.ZERO
-@export var mouse_sensitivity:float = 1
-@export var max_mouse_x:float = 1000
-@export var max_mouse_y:float = 900
+@export var mouse_sensitivity:float = 1/100.0
+@export var max_mouse_x:float = 5
+@export var max_mouse_y:float = 3
 
 @onready var debug_point_cube:Node3D = $MeshInstance3D
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	pass
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -70,16 +71,26 @@ func update_timer(delta):
 func update_position():
 	match(state):
 		State.TARGETING:
+			# Targeting is direct rotation mode, do not update position based on mouse movement
 			position = player.global_position + targeting_position_delta
 		_:
+			# Normal is orbit mode, update position based on mouse movement
 			position = player.global_position + initial_position_offset
+			position.x += sin(mouse_movement.x/max_mouse_x)
+			position.y += sin(mouse_movement.y/max_mouse_y)
+			# position.z += -cos(max(mouse_movement.x, mouse_movement.y))
 	
 
 func update_rotation():
 	match(state):
 		State.TARGETING:
+			# Targeting is direct rotation mode, mouse controls rotation
 			look_at(player.global_position + targeting_look_position_offset)
+			rotate_y(sin(mouse_movement.x/max_mouse_x))
+			rotate_x(sin(-mouse_movement.y/max_mouse_y)) #need to un-invert y
 		_:
+			# Normal is orbit mode, just look_at() player + offset
+			# Mouse movement has no effect on rotation
 			look_at(player.global_position + normal_look_position_offset)
 		
 
@@ -102,7 +113,14 @@ func _input(event):
 	
 	# https://docs.godotengine.org/en/stable/classes/class_inputeventmousemotion.html
 	# Accumulate movement
-	mouse_movement += (event.relative * mouse_sensitivity)
+	event.relative.y *= -1 #invert y
+	mouse_movement += (-event.relative * mouse_sensitivity)
 
 	# Clamp accumulation
-	mouse_movement = clamp(mouse_movement, Vector2(-max_mouse_x, -max_mouse_y), Vector2(max_mouse_x, max_mouse_y))
+	# mouse_movement = clamp(mouse_movement, Vector2(-max_mouse_x, -max_mouse_y), Vector2(max_mouse_x, max_mouse_y))
+	mouse_movement.x = clamp(mouse_movement.x, -max_mouse_x, max_mouse_x)
+	mouse_movement.y = clamp(mouse_movement.y, -max_mouse_y, max_mouse_y)
+	print(mouse_movement)
+
+func mouse_movement_to_v3():
+	return Vector3(mouse_movement.x, mouse_movement.y, 0)
