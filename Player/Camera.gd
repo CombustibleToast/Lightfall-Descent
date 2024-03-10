@@ -120,7 +120,3 @@ func _input(event):
 	# mouse_movement = clamp(mouse_movement, Vector2(-max_mouse_x, -max_mouse_y), Vector2(max_mouse_x, max_mouse_y))
 	mouse_movement.x = clamp(mouse_movement.x, -max_mouse_x, max_mouse_x)
 	mouse_movement.y = clamp(mouse_movement.y, -max_mouse_y, max_mouse_y)
-	print(mouse_movement)
-
-func mouse_movement_to_v3():
-	return Vector3(mouse_movement.x, mouse_movement.y, 0)
