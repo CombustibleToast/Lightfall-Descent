@@ -96,7 +96,8 @@ func correct_position(delta):
 func fired_movement(delta):
 	# Point at target
 	# TODO: make this a smooth/lerp'd function
-	look_at(stored_targeting_reticle.global_position)
+	if stored_targeting_reticle.stuck_on_target:
+		look_at(stored_targeting_reticle.global_position)
 
 	# Move in direction of pointing
 	# Just setting the velocity to match rotation exactly. Don't want the player to have to deal with weird things like the rocket orbiting the target.
