@@ -26,6 +26,9 @@ const DRAG_DELTA_MULTIPLIER = 50
 @export_group("Fired Movement")
 @export var fired_impulse = 10000
 @export var fired_acceleration = 25.0
+@onready var current_fired_velocity = -10 # for initial rocket pushback
+@export var stage_1_timeout = 1
+@onready var time_fired = 0
 
 # Enemy Variables
 @onready var hit_enemy:Enemy = null
@@ -103,7 +106,11 @@ func fired_movement(delta):
 	# Just setting the velocity to match rotation exactly. Don't want the player to have to deal with weird things like the rocket orbiting the target.
 	# That happens when just applying impulse
 	# apply_central_impulse(-basis.z * fired_impulse * delta)
-	linear_velocity = -basis.z * (linear_velocity.length() + fired_acceleration * delta)
+	current_fired_velocity += (fired_acceleration if time_fired < stage_1_timeout else (fired_acceleration * 10)) * delta
+	linear_velocity = -basis.z * current_fired_velocity
+
+	# Update firing time
+	time_fired += delta
 
 func player_mount(status:bool):
 	if(status):
@@ -146,7 +153,6 @@ func fire():
 
 	# Disable Interaction Collider
 	$"Interaction Area/CollisionShape3D".disabled = true
-
 
 ## Enemy Collision
 

@@ -26,7 +26,6 @@ func _process(delta):
 
 func hit_by_rocket(rocket:Rocket):
 	stuck_rockets.append(rocket)
-	apply_impulse(rocket.linear_velocity, rocket.position)
 
 func take_damage(damage):
 	current_health -= damage;
