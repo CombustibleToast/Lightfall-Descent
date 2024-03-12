@@ -12,8 +12,8 @@ class_name GameManager
 @onready var current_rocket_refresh_timer = rocket_refresh_time_seconds
 
 @export_group("Enemies")
-@export var enemy_spawn_distance = 100
-@export var enemy_spawn_timer:float = 4
+@export var enemy_spawn_distance = 1000
+@export var enemy_spawn_timer:float = 1
 @onready var current_enemy_spawn_timer = 0
 @onready var enemies = []
 @export var enemy_location_threshold_z_axis:float = 200

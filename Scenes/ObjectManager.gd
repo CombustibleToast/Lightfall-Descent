@@ -8,16 +8,16 @@ var rocket_scene = preload("res://Rocket/Rocket.tscn")
 @export_group("Rocket Initialization")
 @export var SPAWN_NUM_ROCKETS = 20
 @export var MAX_ROCKET_DISTANCE = 100.0
-@export var MAX_ROCKET_ALTITUDE_VARIANCE = 5.0
+@export var MAX_ROCKET_ALTITUDE_VARIANCE = 20.0
 @export var ROCKET_INITAL_OFFSET_DISTANCE = 5.0
 
 @export_group("Big Rocket")
 @export var big_rocket_scale:float = 10
-@export var big_rocket_spawn_location:Vector3 = Vector3(0,300,300)
+@export var big_rocket_spawn_distance:float = 600
+@export var big_rocket_max_spawn_radius:float = 1000
 
 @export_group("Enemies")
-@export var enemy_spawn_location:Vector3
-@export var enemy_spawn_radius:float
+@export var enemy_spawn_radius:float = 400
 @export var basic_enemy = preload("res://Enemies/Basic Enemy.tscn")
 
 # Called when the node enters the scene tree for the first time.
@@ -64,13 +64,20 @@ func spawn_rockets(amount):
 
 
 func spawn_big_rocket(target:Node3D):
+	# Calculate initial position, polar to cartesian on x-y plane
+	# Distance should be +z (behind camera)
+	var r = randf() * big_rocket_max_spawn_radius
+	var theta = deg_to_rad(randf() * 360)
+	var spawn_position = Vector3(r * cos(theta), r * sin(theta), big_rocket_spawn_distance)
+	print("Spawning big one at %s"%spawn_position)
+	
 	# Instantiate rocket and give it initial values
 	var new_rocket:Rocket = rocket_scene.instantiate()
 	add_child(new_rocket)
 	new_rocket.is_big_rocket = true
 	new_rocket.scale = Vector3.ONE * big_rocket_scale
 	new_rocket.mass *= 2
-	new_rocket.position = big_rocket_spawn_location
+	new_rocket.position = spawn_position
 	new_rocket.fire()
 	new_rocket.big_rocket_target = target
 
@@ -79,7 +86,7 @@ func spawn_big_rocket(target:Node3D):
 func spawn_enemies(type:int, amount:int, distance_away:float) -> Array:
 	var all_new_enemies = []
 	for i in range(0, amount):
-		# Generate its location (polar to cartesian on x-z plane)
+		# Generate its location 
 		var r = randf() * enemy_spawn_radius
 		var theta = deg_to_rad(randf() * 360)
 		var spawn_location = Vector3(r * cos(theta), r * sin(theta), -distance_away)

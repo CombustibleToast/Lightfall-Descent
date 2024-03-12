@@ -75,8 +75,8 @@ func update_position():
 		_:
 			# Normal is orbit mode, update position based on mouse movement
 			position = player.global_position + initial_position_offset
-			position.x += sin(mouse_movement.x/max_mouse_x)
-			position.y += sin(mouse_movement.y/max_mouse_y)
+			position.x += sin(mouse_movement.x/max_mouse_x) * max_mouse_x
+			position.y += sin(mouse_movement.y/max_mouse_y) * max_mouse_y
 			# position.z += -cos(max(mouse_movement.x, mouse_movement.y))
 	
 func update_rotation():

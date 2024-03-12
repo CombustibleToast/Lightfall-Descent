@@ -13,7 +13,7 @@ enum EnemyState {ALIVE, DYING, DEAD}
 @export var base_health = 1
 @onready var current_health = base_health
 @export var damage_to_prism = 1
-@export var speed:float = 1000
+@export var speed:float = 20
 
 # Dying variables
 @onready var stuck_rockets = []
@@ -28,7 +28,7 @@ func _process(delta):
 	pass
 
 func _physics_process(delta):
-	apply_central_force(Vector3.BACK * speed * delta * mass)
+	move_and_collide(Vector3.BACK * speed * delta)
 
 ## Damage and Death
 

@@ -38,7 +38,7 @@ fog_density = 0.0183
 script = ExtResource("1_76667")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.984772, 0.173852, 0, -0.173852, 0.984772, 7.10543e-15, 0.739317, 1.86957)
+transform = Transform3D(1, 0, 0, 0, 0.984772, 0.173852, 0, -0.173852, 0.984772, 7.10543e-15, 0.39858, 8.25117)
 current = true
 fov = 90.0
 script = ExtResource("1_3fs8u")
@@ -62,7 +62,7 @@ transform = Transform3D(0.125, 0, 0, 0, 0.125, 0, 0, 0, 0.125, -0.118, -0.337736
 mesh = SubResource("BoxMesh_xpkcj")
 
 [node name="Player" parent="." node_paths=PackedStringArray("targeting_raycast", "targeting_reticle") instance=ExtResource("2_d6sd5")]
-transform = Transform3D(1, 0, 0, 0, 0.63818, -0.769887, 0, 0.769887, 0.63818, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 0.349296, -0.937012, 0, 0.937012, 0.349296, 0, 0, 5.57986)
 targeting_raycast = NodePath("../Camera3D/Targeting Raycast")
 targeting_reticle = NodePath("../LFD Targeting Reticle")
 
@@ -71,7 +71,6 @@ transform = Transform3D(1, 0, 0, 0, 0.773657, 0.633605, 0, -0.633605, 0.773657, 
 
 [node name="ObjectManager" type="Node3D" parent="."]
 script = ExtResource("2_d132w")
-enemy_spawn_radius = 40.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_h78sx")
