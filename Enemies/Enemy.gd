@@ -2,15 +2,18 @@ extends RigidBody3D
 
 class_name Enemy
 
+# Misc variables
+
 # State Machine
 enum EnemyState {ALIVE, DYING, DEAD}
 @onready var state = EnemyState.ALIVE
-@onready var big_rocket_inbound:bool = false
+@onready var waiting_for_big_rocket:bool = false
 
 # Statistics
 @export var base_health = 1
 @onready var current_health = base_health
-@export var speed:float = 10
+@export var damage_to_prism = 1
+@export var speed:float = 1000
 
 # Dying variables
 @onready var stuck_rockets = []
@@ -25,7 +28,7 @@ func _process(delta):
 	pass
 
 func _physics_process(delta):
-	move_and_collide(Vector3.BACK * speed * delta)
+	apply_central_force(Vector3.BACK * speed * delta * mass)
 
 ## Damage and Death
 
@@ -35,14 +38,13 @@ func hit_by_rocket(rocket:Rocket):
 	# Wait for a big rocket if this one is not
 	# This value is used in Rocket.gd to check whether or not to send in a big rocket
 	if not rocket.is_big_rocket:
-		big_rocket_inbound = true
+		waiting_for_big_rocket = true
 
-	# Stop waiting if hit by a big rocket
-	else:
-		big_rocket_inbound = false
+func take_damage(rocket:Rocket, damage):
+	# Stop waiting if damaged by a big rocket
+	if rocket.is_big_rocket:
+		waiting_for_big_rocket = false
 
-
-func take_damage(damage):
 	current_health -= damage;
 	if current_health <= 0:
 		# Die

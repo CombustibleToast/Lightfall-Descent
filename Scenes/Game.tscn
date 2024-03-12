@@ -1,10 +1,9 @@
-[gd_scene load_steps=13 format=3 uid="uid://cymx2p74j54ys"]
+[gd_scene load_steps=12 format=3 uid="uid://cymx2p74j54ys"]
 
 [ext_resource type="Script" path="res://Player/Camera.gd" id="1_3fs8u"]
 [ext_resource type="Script" path="res://Scenes/Game Manager.gd" id="1_76667"]
 [ext_resource type="PackedScene" uid="uid://daj6g3rgkw7yd" path="res://Player/Character Model/Player Attempt 2.tscn" id="2_d6sd5"]
 [ext_resource type="Script" path="res://Scenes/ObjectManager.gd" id="2_d132w"]
-[ext_resource type="PackedScene" uid="uid://cc0opmhevv0je" path="res://Enemies/Basic Enemy.tscn" id="3_i7n1q"]
 [ext_resource type="PackedScene" uid="uid://cudqyxsfpwvqb" path="res://Rocket/Targeting Reticle.tscn" id="5_sobak"]
 [ext_resource type="PackedScene" uid="uid://wbdq6dlhvc2w" path="res://Objects/LFD Prism.glb" id="6_ql1vy"]
 
@@ -72,9 +71,7 @@ transform = Transform3D(1, 0, 0, 0, 0.773657, 0.633605, 0, -0.633605, 0.773657, 
 
 [node name="ObjectManager" type="Node3D" parent="."]
 script = ExtResource("2_d132w")
-
-[node name="Basic Enemy" parent="ObjectManager" instance=ExtResource("3_i7n1q")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.62711, -66.3277)
+enemy_spawn_radius = 40.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_h78sx")

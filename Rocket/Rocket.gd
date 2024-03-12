@@ -190,8 +190,7 @@ func enemy_hit(enemy:Enemy):
 		stored_targeting_reticle = null # just in case
 
 	# Also call in big rocket if small and big rocket is available
-	print("%s is small (%s) and the enemy has a big rocket inbound (%s)"%[name, is_big_rocket, enemy.big_rocket_inbound])
-	if not is_big_rocket and not enemy.big_rocket_inbound:
+	if not is_big_rocket and not enemy.waiting_for_big_rocket:
 		object_manager.spawn_big_rocket(enemy)
 
 	# Update state
@@ -212,7 +211,7 @@ func fuse_countdown(delta):
 	if remaining_fuse_time <= 0:
 		# Explode once the fuse is out
 		# Deal damage to enemy
-		hit_enemy.take_damage(damage)
+		hit_enemy.take_damage(self, damage)
 
 		# Play particle effect or whatever here
 
