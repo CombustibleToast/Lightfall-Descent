@@ -2,12 +2,13 @@ extends RigidBody3D
 
 class_name Rocket
 
-@onready var parent = $".."
+@onready var object_manager:ObjectManager = $".."
 
 # State Machine
 enum RocketState {FLOATING, MOUNTED, PRE_FIRE, FIRED, STUCK_IN_TARGET, EXPLODING, DISABLED}
 @onready var PLAYER = null
 @onready var state = RocketState.FLOATING
+@onready var is_big_rocket = false
 
 # Movement Variables
 # Floating
@@ -29,13 +30,14 @@ const DRAG_DELTA_MULTIPLIER = 50
 @onready var current_fired_velocity = -10 # for initial rocket pushback
 @export var stage_1_timeout = 1
 @onready var time_fired = 0
+@onready var big_rocket_target = null
 
 # Enemy Variables
 @onready var hit_enemy:Enemy = null
 @export var fuse_time = 2
 @onready var remaining_fuse_time = fuse_time
 @export var damage = 1
-var stored_targeting_reticle = null
+@onready var stored_targeting_reticle = null
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -46,7 +48,8 @@ func _ready():
 func _process(delta):
 	match state:
 		RocketState.STUCK_IN_TARGET:
-			fuse_countdown(delta)
+			if is_big_rocket:
+				fuse_countdown(delta)
 		_:
 			pass
 
@@ -86,21 +89,29 @@ func correct_rotation(delta):
 func correct_position(delta):
 	var direction = desired_position - position
 	var distance_squared = position.distance_squared_to(desired_position)
-	# print(direction)
+
 	apply_central_force(direction * delta * POSITION_CORRECTION_POWER * distance_squared)
 	# currently does not push other rigidbodies
 
 	# add a conditional here for when the rocket is launched
 	if linear_velocity.length() > MAX_FLOATING_VELOCITY:
 		linear_velocity = linear_velocity.normalized() * MAX_FLOATING_VELOCITY
+	
+	# Occasionally nudge the rocket in a random direction to keep up pid wobble
+	if randi() % 1000 == 69:
+		print("%s nudged"%name)
+		apply_central_impulse(Vector3(randf(), randf(), randf()).normalized() * 5000)
 
 ## Player Interaction
 
 func fired_movement(delta):
 	# Point at target
 	# TODO: make this a smooth/lerp'd function
-	if stored_targeting_reticle.stuck_on_target:
+	if not is_big_rocket and stored_targeting_reticle.stuck_on_target:
 		look_at(stored_targeting_reticle.global_position)
+
+	if is_big_rocket:
+		look_at(big_rocket_target.global_position)
 
 	# Move in direction of pointing
 	# Just setting the velocity to match rotation exactly. Don't want the player to have to deal with weird things like the rocket orbiting the target.
@@ -178,8 +189,12 @@ func enemy_hit(enemy:Enemy):
 	$"CollisionShape3D".disabled = true
 
 	# Deactivate targeting reticle for reuse
-	stored_targeting_reticle.deactivate()
-	stored_targeting_reticle = null # just in case
+	if not is_big_rocket:
+		stored_targeting_reticle.deactivate()
+		stored_targeting_reticle = null # just in case
+
+		# Also call in big rocket
+		object_manager.spawn_big_rocket(enemy)
 
 	# Update state
 	state = RocketState.STUCK_IN_TARGET

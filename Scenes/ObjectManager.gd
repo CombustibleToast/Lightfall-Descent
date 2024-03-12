@@ -1,14 +1,19 @@
 extends Node3D
+class_name ObjectManager
 
 var rocket_scene = preload("res://Rocket/Rocket.tscn")
 var rng;
 @onready var PLAYER = $"../Player"
 
 @export_group("Rocket Initialization")
-@export var SPAWN_NUM_ROCKETS = 10
-@export var MAX_ROCKET_DISTANCE = 30.0
+@export var SPAWN_NUM_ROCKETS = 100
+@export var MAX_ROCKET_DISTANCE = 100.0
 @export var MAX_ROCKET_ALTITUDE_VARIANCE = 5.0
 @export var ROCKET_INITAL_OFFSET_DISTANCE = 5.0
+
+@export_group("Big Rocket")
+@export var big_rocket_scale:float = 10
+@export var big_rocket_spawn_location:Vector3 = Vector3(0,300,300)
 
 
 # Called when the node enters the scene tree for the first time.
@@ -31,7 +36,7 @@ func spawn_rockets(amount):
 		var r = rng.randf() * MAX_ROCKET_DISTANCE
 		var theta = deg_to_rad(rng.randf() * 360)
 		var altitude = rng.randf() * MAX_ROCKET_ALTITUDE_VARIANCE - (MAX_ROCKET_ALTITUDE_VARIANCE/2)
-		var rocket_desired_location = Vector3(r * cos(theta), altitude, r * sin(theta))
+		var rocket_desired_location = Vector3(r * cos(theta), r * sin(theta), altitude)
 
 		# Make rocket's actual initial position different than its desired one to generate pid wobble 
 		var rocket_initial_location = rocket_desired_location 
@@ -46,3 +51,13 @@ func spawn_rockets(amount):
 		new_rocket.position = rocket_initial_location
 		new_rocket.name = "Rocket %d"%i
 		new_rocket.PLAYER = PLAYER
+
+func spawn_big_rocket(target:Node3D):
+	# Instantiate rocket and give it initial values
+	var new_rocket:Rocket = rocket_scene.instantiate()
+	add_child(new_rocket)
+	new_rocket.is_big_rocket = true
+	new_rocket.scale = Vector3.ONE * big_rocket_scale
+	new_rocket.position = big_rocket_spawn_location
+	new_rocket.fire()
+	new_rocket.big_rocket_target = target

@@ -1,6 +1,7 @@
-[gd_scene load_steps=12 format=3 uid="uid://cymx2p74j54ys"]
+[gd_scene load_steps=13 format=3 uid="uid://cymx2p74j54ys"]
 
 [ext_resource type="Script" path="res://Player/Camera.gd" id="1_3fs8u"]
+[ext_resource type="Script" path="res://Scenes/Game Manager.gd" id="1_76667"]
 [ext_resource type="PackedScene" uid="uid://daj6g3rgkw7yd" path="res://Player/Character Model/Player Attempt 2.tscn" id="2_d6sd5"]
 [ext_resource type="Script" path="res://Scenes/ObjectManager.gd" id="2_d132w"]
 [ext_resource type="PackedScene" uid="uid://cc0opmhevv0je" path="res://Enemies/Basic Enemy.tscn" id="3_i7n1q"]
@@ -33,6 +34,9 @@ fog_light_color = Color(0.12549, 0.027451, 0.129412, 1)
 fog_density = 0.0183
 
 [node name="Node3D" type="Node3D"]
+
+[node name="Game Manager" type="Node3D" parent="."]
+script = ExtResource("1_76667")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.926635, 0.375963, 0, -0.375963, 0.926635, 7.10543e-15, 0.928317, 1.35757)
