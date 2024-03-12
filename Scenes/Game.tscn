@@ -1,10 +1,11 @@
-[gd_scene load_steps=11 format=3 uid="uid://cymx2p74j54ys"]
+[gd_scene load_steps=12 format=3 uid="uid://cymx2p74j54ys"]
 
 [ext_resource type="Script" path="res://Player/Camera.gd" id="1_3fs8u"]
 [ext_resource type="PackedScene" uid="uid://daj6g3rgkw7yd" path="res://Player/Character Model/Player Attempt 2.tscn" id="2_d6sd5"]
 [ext_resource type="Script" path="res://Scenes/ObjectManager.gd" id="2_d132w"]
 [ext_resource type="PackedScene" uid="uid://cc0opmhevv0je" path="res://Enemies/Basic Enemy.tscn" id="3_i7n1q"]
 [ext_resource type="PackedScene" uid="uid://cudqyxsfpwvqb" path="res://Rocket/Targeting Reticle.tscn" id="5_sobak"]
+[ext_resource type="PackedScene" uid="uid://wbdq6dlhvc2w" path="res://Objects/LFD Prism.glb" id="6_ql1vy"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_isaox"]
 
@@ -27,6 +28,7 @@ background_mode = 2
 sky = SubResource("Sky_mktuf")
 sky_custom_fov = 133.2
 sky_rotation = Vector3(1.03323, 0, 0)
+ambient_light_source = 1
 fog_light_color = Color(0.12549, 0.027451, 0.129412, 1)
 fog_density = 0.0183
 
@@ -76,3 +78,16 @@ environment = SubResource("Environment_h78sx")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
 visible = false
 camera = NodePath("../Camera3D")
+
+[node name="LFD Prism" parent="." instance=ExtResource("6_ql1vy")]
+transform = Transform3D(25.228, 0, 0, 0, 8.83512, -23.6303, 0, 23.6303, 8.83512, -0.936, 59.8964, 140.503)
+
+[node name="SpotLight3D" type="SpotLight3D" parent="LFD Prism"]
+transform = Transform3D(0.0396385, 0, 0, 0, -2.79397e-09, 0.0396385, 0, -0.0396385, -2.79397e-09, 0, 0, 0)
+light_color = Color(1, 0.945098, 0.521569, 1)
+light_energy = 16.0
+light_indirect_energy = 16.0
+light_specular = 16.0
+light_bake_mode = 0
+spot_range = 1099.73
+spot_angle = 29.16

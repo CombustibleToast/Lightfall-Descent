@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://bgoydy530mj0l"]
+
+[ext_resource type="PackedScene" uid="uid://wbdq6dlhvc2w" path="res://Objects/LFD Prism.glb" id="1_6srnm"]
+
+[node name="Area3D" type="Area3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+
+[node name="LFD Prism" parent="." instance=ExtResource("1_6srnm")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
