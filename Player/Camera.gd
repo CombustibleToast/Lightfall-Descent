@@ -1,12 +1,12 @@
 extends Camera3D
 
 @onready var player:Player = $"../Player"
+
+@export_category("Rotation Stuff")
 @onready var initial_position_offset:Vector3 = self.position - player.position
 @export var normal_look_position_offset:Vector3
 @export var targeting_position_delta:Vector3
 @export var targeting_look_position_offset:Vector3
-@export var position_adjustment_time:float = 0.8
-@export var rotation_adjustment_time:float = 0.8
 
 # Camera state machine
 enum State {NORMAL, TARGETING}
@@ -58,7 +58,6 @@ func check_state_change():
 	if state != previous_state:
 		state_just_changed = true
 
-
 func update_timer(delta):
 	# Restart timer if necessary
 	if state_just_changed:
@@ -80,7 +79,6 @@ func update_position():
 			position.y += sin(mouse_movement.y/max_mouse_y)
 			# position.z += -cos(max(mouse_movement.x, mouse_movement.y))
 	
-
 func update_rotation():
 	match(state):
 		State.TARGETING:
@@ -90,10 +88,12 @@ func update_rotation():
 			rotate_x(sin(-mouse_movement.y/max_mouse_y)) #need to un-invert y
 		_:
 			# Normal is orbit mode, just look_at() player + offset
-			# Mouse movement has no effect on rotation
-			look_at(player.global_position + normal_look_position_offset)
+			# Mouse movement effects where the look position is
+			var thing = pow(2, (2 * abs(mouse_movement.x)) - 8) #https://www.desmos.com/calculator/r6ttlyxzed
+			print(thing)
+			var look_point_reversal:Vector3 = player.basis.z * Vector3(0,0,thing)
+			look_at(player.global_position + normal_look_position_offset + look_point_reversal)
 		
-
 func update_fov():
 	if state_just_changed:
 		previous_fov = fov
