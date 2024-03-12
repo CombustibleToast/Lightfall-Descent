@@ -99,7 +99,6 @@ func correct_position(delta):
 	
 	# Occasionally nudge the rocket in a random direction to keep up pid wobble
 	if randi() % 1000 == 69:
-		print("%s nudged"%name)
 		apply_central_impulse(Vector3(randf(), randf(), randf()).normalized() * 5000)
 
 ## Player Interaction
@@ -169,7 +168,7 @@ func fire():
 
 func _on_enemy_collision_area_area_entered(area:Area3D):
 	var other = area.get_parent()
-	print("%s has areaEntered with %s"%[name, other.name])
+	# print("%s has areaEntered with %s"%[name, other.name])
 	if other.is_in_group("enemies"):
 		enemy_hit(other)
 
@@ -178,9 +177,6 @@ func enemy_hit(enemy:Enemy):
 	# Doesn't work, just going to have the enemy be pushed back by the rocket in code. L
 	# await get_tree().process_frame
 	# await get_tree().process_frame
-
-	# Inform the enemy that it's been hit
-	enemy.hit_by_rocket(self)
 	
 	# Disable own collider to prevent infinite recalls
 	$"Enemy Collision Area/CollisionShape3D".disabled = true
@@ -189,16 +185,21 @@ func enemy_hit(enemy:Enemy):
 	$"CollisionShape3D".disabled = true
 
 	# Deactivate targeting reticle for reuse
-	if not is_big_rocket:
+	if stored_targeting_reticle:
 		stored_targeting_reticle.deactivate()
 		stored_targeting_reticle = null # just in case
 
-		# Also call in big rocket
+	# Also call in big rocket if small and big rocket is available
+	print("%s is small (%s) and the enemy has a big rocket inbound (%s)"%[name, is_big_rocket, enemy.big_rocket_inbound])
+	if not is_big_rocket and not enemy.big_rocket_inbound:
 		object_manager.spawn_big_rocket(enemy)
 
 	# Update state
 	state = RocketState.STUCK_IN_TARGET
 	hit_enemy = enemy
+
+	# Inform the enemy that it's been hit
+	enemy.hit_by_rocket(self)
 
 	# Inherit enemy's transform
 	var old_global_transform = global_transform

@@ -15,6 +15,10 @@ var rng;
 @export var big_rocket_scale:float = 10
 @export var big_rocket_spawn_location:Vector3 = Vector3(0,300,300)
 
+@export_group("Enemies")
+@export var enemy_spawn_location:Vector3
+@export var enemy_spawn_radius:float
+@export var basic_enemy:Enemy
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -25,6 +29,8 @@ func _ready():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	pass
+
+## Rockets
 
 func spawn_rockets(amount):
 	# All rockets are placed in the "rockets" group
@@ -61,3 +67,15 @@ func spawn_big_rocket(target:Node3D):
 	new_rocket.position = big_rocket_spawn_location
 	new_rocket.fire()
 	new_rocket.big_rocket_target = target
+
+## Enemies
+
+func spawn_enemies(amount:int):
+	for i in range(0, amount):
+		# Generate its location (polar to cartesian on x-z plane)
+		var r = rng.randf() * enemy_spawn_radius
+		var theta = deg_to_rad(rng.randf() * 360)
+		var spawn_location = Vector3(r * cos(theta), r * sin(theta), 0)
+
+		var new_enemy = basic_enemy.instantiate()
+		add_child(new_enemy)

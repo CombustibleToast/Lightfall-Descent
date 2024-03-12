@@ -90,7 +90,6 @@ func update_rotation():
 			# Normal is orbit mode, just look_at() player + offset
 			# Mouse movement effects where the look position is
 			var thing = pow(2, (2 * abs(mouse_movement.x)) - 8) #https://www.desmos.com/calculator/r6ttlyxzed
-			print(thing)
 			var look_point_reversal:Vector3 = player.basis.z * Vector3(0,0,thing)
 			look_at(player.global_position + normal_look_position_offset + look_point_reversal)
 		

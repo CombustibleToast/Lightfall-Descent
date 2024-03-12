@@ -28,7 +28,7 @@ sky_material = SubResource("ProceduralSkyMaterial_eav4t")
 background_mode = 2
 sky = SubResource("Sky_mktuf")
 sky_custom_fov = 133.2
-sky_rotation = Vector3(1.03323, 0, 0)
+sky_rotation = Vector3(1.5708, 0, 0)
 ambient_light_source = 1
 fog_light_color = Color(0.12549, 0.027451, 0.129412, 1)
 fog_density = 0.0183
@@ -39,7 +39,7 @@ fog_density = 0.0183
 script = ExtResource("1_76667")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.926635, 0.375963, 0, -0.375963, 0.926635, 7.10543e-15, 0.928317, 1.35757)
+transform = Transform3D(1, 0, 0, 0, 0.984772, 0.173852, 0, -0.173852, 0.984772, 7.10543e-15, 0.739317, 1.86957)
 current = true
 fov = 90.0
 script = ExtResource("1_3fs8u")
@@ -63,6 +63,7 @@ transform = Transform3D(0.125, 0, 0, 0, 0.125, 0, 0, 0, 0.125, -0.118, -0.337736
 mesh = SubResource("BoxMesh_xpkcj")
 
 [node name="Player" parent="." node_paths=PackedStringArray("targeting_raycast", "targeting_reticle") instance=ExtResource("2_d6sd5")]
+transform = Transform3D(1, 0, 0, 0, 0.63818, -0.769887, 0, 0.769887, 0.63818, 0, 0, 0)
 targeting_raycast = NodePath("../Camera3D/Targeting Raycast")
 targeting_reticle = NodePath("../LFD Targeting Reticle")
 
@@ -73,7 +74,7 @@ transform = Transform3D(1, 0, 0, 0, 0.773657, 0.633605, 0, -0.633605, 0.773657, 
 script = ExtResource("2_d132w")
 
 [node name="Basic Enemy" parent="ObjectManager" instance=ExtResource("3_i7n1q")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -51.7121, -110.348)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.62711, -66.3277)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_h78sx")
@@ -84,7 +85,7 @@ visible = false
 camera = NodePath("../Camera3D")
 
 [node name="LFD Prism" parent="." instance=ExtResource("6_ql1vy")]
-transform = Transform3D(25.228, 0, 0, 0, 8.83512, -23.6303, 0, 23.6303, 8.83512, -0.936, 59.8964, 140.503)
+transform = Transform3D(25.228, 0, 0, 0, -1.10275e-06, -25.228, 0, 25.228, -1.10275e-06, -0.936, 2.53942, 140.503)
 
 [node name="SpotLight3D" type="SpotLight3D" parent="LFD Prism"]
 transform = Transform3D(0.0396385, 0, 0, 0, -2.79397e-09, 0.0396385, 0, -0.0396385, -2.79397e-09, 0, 0, 0)
