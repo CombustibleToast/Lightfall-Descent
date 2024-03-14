@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://ct6157w8no1ml"]
+
+[ext_resource type="PackedScene" uid="uid://decshridb12h4" path="res://Objects/LFD Outer Sphere.glb" id="1_oioul"]
+[ext_resource type="Script" path="res://Objects/Outer sphere.gd" id="2_h3gon"]
+
+[node name="LFD Outer Sphere" instance=ExtResource("1_oioul")]
+script = ExtResource("2_h3gon")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Icosphere" index="0"]

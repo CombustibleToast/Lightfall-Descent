@@ -1,7 +1,7 @@
 extends CharacterBody3D
 class_name Player
 
-const SPEED = 200.0 # change to about 5 once movement abilities are in
+const SPEED = 50.0 # change to about 5 once movement abilities are in
 @export var arming_movement_speed_throttle:float = 0.05
 const DRAG = 0.1
 const DRAG_DELTA_MULTIPLIER = 50

@@ -1,10 +1,11 @@
-[gd_scene load_steps=12 format=3 uid="uid://cymx2p74j54ys"]
+[gd_scene load_steps=13 format=3 uid="uid://cymx2p74j54ys"]
 
 [ext_resource type="Script" path="res://Player/Camera.gd" id="1_3fs8u"]
 [ext_resource type="Script" path="res://Scenes/Game Manager.gd" id="1_76667"]
 [ext_resource type="PackedScene" uid="uid://daj6g3rgkw7yd" path="res://Player/Character Model/Player Attempt 2.tscn" id="2_d6sd5"]
 [ext_resource type="Script" path="res://Scenes/ObjectManager.gd" id="2_d132w"]
 [ext_resource type="PackedScene" uid="uid://cudqyxsfpwvqb" path="res://Rocket/Targeting Reticle.tscn" id="5_sobak"]
+[ext_resource type="PackedScene" uid="uid://ct6157w8no1ml" path="res://Objects/Outer sphere.tscn" id="5_t2nvp"]
 [ext_resource type="PackedScene" uid="uid://wbdq6dlhvc2w" path="res://Objects/LFD Prism.glb" id="6_ql1vy"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_isaox"]
@@ -36,9 +37,16 @@ fog_density = 0.0183
 
 [node name="Game Manager" type="Node3D" parent="."]
 script = ExtResource("1_76667")
+enemy_spawn_distance = 200
+enemy_spawn_timer = 8.0
+enemy_location_threshold_z_axis = 150.0
+
+[node name="ObjectManager" type="Node3D" parent="."]
+script = ExtResource("2_d132w")
+enemy_spawn_radius = 100.0
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.984772, 0.173852, 0, -0.173852, 0.984772, 7.10543e-15, 0.39858, 8.25117)
+transform = Transform3D(1, 0, 0, 0, 0.999969, -0.00790878, 0, 0.00790878, 0.999969, 0, 0, 8.251)
 current = true
 fov = 90.0
 script = ExtResource("1_3fs8u")
@@ -62,18 +70,18 @@ transform = Transform3D(0.125, 0, 0, 0, 0.125, 0, 0, 0, 0.125, -0.118, -0.337736
 mesh = SubResource("BoxMesh_xpkcj")
 
 [node name="Player" parent="." node_paths=PackedStringArray("targeting_raycast", "targeting_reticle") instance=ExtResource("2_d6sd5")]
-transform = Transform3D(1, 0, 0, 0, 0.349296, -0.937012, 0, 0.937012, 0.349296, 0, 0, 5.57986)
+transform = Transform3D(1, 0, 0, 0, 0.913538, -0.406753, 0, 0.406753, 0.913538, 0, 0, 5.57986)
 targeting_raycast = NodePath("../Camera3D/Targeting Raycast")
 targeting_reticle = NodePath("../LFD Targeting Reticle")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.773657, 0.633605, 0, -0.633605, 0.773657, 0, 7.533, 6.27801)
 
-[node name="ObjectManager" type="Node3D" parent="."]
-script = ExtResource("2_d132w")
-
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_h78sx")
+
+[node name="LFD Outer Sphere2" parent="WorldEnvironment" instance=ExtResource("5_t2nvp")]
+transform = Transform3D(200, 0, 0, 0, -8.74228e-06, -200, 0, 200, -8.74228e-06, 0, 0, 0)
 
 [node name="LFD Targeting Reticle" parent="." node_paths=PackedStringArray("camera") instance=ExtResource("5_sobak")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
@@ -84,11 +92,9 @@ camera = NodePath("../Camera3D")
 transform = Transform3D(25.228, 0, 0, 0, -1.10275e-06, -25.228, 0, 25.228, -1.10275e-06, -0.936, 2.53942, 140.503)
 
 [node name="SpotLight3D" type="SpotLight3D" parent="LFD Prism"]
-transform = Transform3D(0.0396385, 0, 0, 0, -2.79397e-09, 0.0396385, 0, -0.0396385, -2.79397e-09, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, -1.39781, 8.9407e-08)
 light_color = Color(1, 0.945098, 0.521569, 1)
-light_energy = 16.0
-light_indirect_energy = 16.0
 light_specular = 16.0
 light_bake_mode = 0
-spot_range = 1099.73
-spot_angle = 29.16
+spot_range = 470.059
+spot_angle = 40.77

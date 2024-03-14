@@ -8,7 +8,7 @@ class_name GameManager
 
 @export_group("Game")
 @export var prism_health:int = 10
-@export var rocket_refresh_time_seconds:float = 10
+@export var rocket_refresh_time_seconds:float = 4
 @onready var current_rocket_refresh_timer = rocket_refresh_time_seconds
 
 @export_group("Enemies")
@@ -33,6 +33,7 @@ func process_timers(delta):
     current_rocket_refresh_timer -= delta
     if current_rocket_refresh_timer <= 0:
         current_rocket_refresh_timer = rocket_refresh_time_seconds
+        object_manager.spawn_rocket(Vector3(0,0,object_manager.big_rocket_spawn_distance), object_manager.get_random_rocket_location(), "Spawned Rocket")
 
     # New enemies
     current_enemy_spawn_timer -= delta
@@ -40,6 +41,9 @@ func process_timers(delta):
         current_enemy_spawn_timer = enemy_spawn_timer
         var new_enemies = object_manager.spawn_enemies(0, 1, enemy_spawn_distance) #change to point buy system in the future
         enemies.append_array(new_enemies)
+
+        # speed up spawn timer slightly
+        enemy_spawn_timer *= 0.99;
 
 # Check if any enemy has been previously freed (destroyed by player)
 func cull_enemies():

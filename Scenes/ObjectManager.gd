@@ -31,6 +31,14 @@ func _process(delta):
 
 ## Rockets
 
+func get_random_rocket_location() -> Vector3:
+	# Generate its location (polar to cartesian on x-z plane)
+	var r = randf() * MAX_ROCKET_DISTANCE
+	var theta = deg_to_rad(randf() * 360)
+	var altitude = randf() * MAX_ROCKET_ALTITUDE_VARIANCE - (MAX_ROCKET_ALTITUDE_VARIANCE/2)
+	var rocket_desired_location = Vector3(r * cos(theta), r * sin(theta), altitude)
+	return rocket_desired_location
+
 func spawn_rocket(initial_position:Vector3, desired_position:Vector3, rocket_name:String) -> Rocket:
 	# Instantiate rocket and give it initial values
 	var new_rocket = rocket_scene.instantiate()
@@ -47,13 +55,8 @@ func spawn_rockets(amount):
 	# get_tree().call_group("rockets", "function_name")
 
 	for i in range(0, amount):
-		# Generate its location (polar to cartesian on x-z plane)
-		var r = randf() * MAX_ROCKET_DISTANCE
-		var theta = deg_to_rad(randf() * 360)
-		var altitude = randf() * MAX_ROCKET_ALTITUDE_VARIANCE - (MAX_ROCKET_ALTITUDE_VARIANCE/2)
-		var rocket_desired_location = Vector3(r * cos(theta), r * sin(theta), altitude)
-
 		# Make rocket's actual initial position different than its desired one to generate pid wobble 
+		var rocket_desired_location = get_random_rocket_location()
 		var rocket_initial_location = rocket_desired_location 
 		rocket_initial_location.x += randf() * ROCKET_INITAL_OFFSET_DISTANCE - (ROCKET_INITAL_OFFSET_DISTANCE/2)
 		rocket_initial_location.y += randf() * ROCKET_INITAL_OFFSET_DISTANCE - (ROCKET_INITAL_OFFSET_DISTANCE/2)
